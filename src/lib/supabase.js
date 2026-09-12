@@ -56,20 +56,52 @@ function detectConfigError() {
     }
   }
 
+  // 값이 들어 있어도 주소 형식이 아니면 createClient 가 예외를 던진다.
+  // 안내 문구 없이 흰 화면이 되지 않도록 미리 걸러낸다.
+  if (!/^https?:\/\/\S+$/i.test(url)) {
+    return {
+      kind: 'invalid-url',
+      message: 'Supabase 주소 형식이 올바르지 않습니다.',
+      detail:
+        'VITE_SUPABASE_URL 값이 주소가 아닙니다. 설명 문구나 빈칸이 아니라 ' +
+        'https://프로젝트ID.supabase.co 처럼 https:// 로 시작하는 전체 주소를 넣어 주세요.',
+    }
+  }
+
   return null
 }
 
-export const supabaseConfigError = detectConfigError()
+// 설정을 검사한 뒤 클라이언트를 만든다.
+// createClient 가 예외를 던져도 앱 전체가 멈추지 않도록 감싼다.
+function initSupabase() {
+  const configError = detectConfigError()
+  if (configError) return { client: null, error: configError }
 
-export const supabase = supabaseConfigError
-  ? null
-  : createClient(url, publishableKey, {
+  try {
+    const client = createClient(url, publishableKey, {
       auth: {
         // 방문자는 로그인하지 않는다. 세션을 저장하거나 갱신하지 않는다.
         persistSession: false,
         autoRefreshToken: false,
       },
     })
+    return { client, error: null }
+  } catch (e) {
+    return {
+      client: null,
+      error: {
+        kind: 'client-init-failed',
+        message: 'Supabase 연결을 만들지 못했습니다.',
+        detail: `설정값을 다시 확인해 주세요. (${e?.message ?? '알 수 없는 오류'})`,
+      },
+    }
+  }
+}
+
+const { client, error } = initSupabase()
+
+export const supabase = client
+export const supabaseConfigError = error
 
 // Storage 에 올린 경로(예: "works/dog.jpg")를 공개 URL 로 바꾼다.
 // 버킷이 Public 으로 설정되어 있어야 한다.
