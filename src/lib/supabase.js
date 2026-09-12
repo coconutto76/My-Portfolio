@@ -80,9 +80,10 @@ function initSupabase() {
   try {
     const client = createClient(url, publishableKey, {
       auth: {
-        // 방문자는 로그인하지 않는다. 세션을 저장하거나 갱신하지 않는다.
-        persistSession: false,
-        autoRefreshToken: false,
+        // 관리자가 로그인하면 새로고침해도 유지되도록 세션을 저장한다.
+        // 방문자는 로그인하지 않으므로 저장되는 것이 없다.
+        persistSession: true,
+        autoRefreshToken: true,
       },
     })
     return { client, error: null }

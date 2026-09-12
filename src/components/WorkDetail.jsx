@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import SmartImage from './SmartImage'
 
 // 작품 상세 보기: 이미지(좌) + 설명(우) 2단 구성. 모바일에서는 위/아래로 쌓임.
-export default function WorkDetail({ work, onClose }) {
+export default function WorkDetail({ work, isAdmin, onEdit, onDelete, onClose }) {
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
@@ -17,9 +17,21 @@ export default function WorkDetail({ work, onClose }) {
     <div className="detail" role="dialog" aria-modal="true">
       <div className="detail__bar">
         <span className="idx">{work.index}</span>
-        <button className="detail__close" onClick={onClose}>
-          닫기 ✕
-        </button>
+        <span className="detail__bar-right">
+          {isAdmin && (
+            <>
+              <button className="btn btn--sm" onClick={onEdit}>
+                수정
+              </button>
+              <button className="btn btn--sm btn--danger" onClick={onDelete}>
+                삭제
+              </button>
+            </>
+          )}
+          <button className="detail__close" onClick={onClose}>
+            닫기 ✕
+          </button>
+        </span>
       </div>
 
       <div className="detail__body">

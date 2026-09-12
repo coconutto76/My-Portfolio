@@ -38,39 +38,46 @@ npm run build
 
 **값을 고친 뒤에는 개발 서버를 껐다가 다시 켜야 적용됩니다.**
 
-### 2. projects 표 만들기
+### 2. projects 표
 
-Supabase → SQL Editor 에서 실행:
+이미 만들어져 있습니다. 구조는 다음과 같습니다.
 
-```sql
-create table if not exists public.projects (
-  id          bigint generated always as identity primary key,
-  title       text not null,
-  description text,
-  image_url   text,          -- Storage 안의 경로. 예: works/dog.jpg
-  video_url   text,          -- 값이 있으면 '영상' 탭, 없으면 '이미지' 탭
-  created_at  timestamptz not null default now()
-);
-```
+| 컬럼 | 타입 | 설명 |
+| --- | --- | --- |
+| `id` | `uuid` | 기본키 |
+| `title` | `text` | 작품 제목 |
+| `description` | `text` | 설명 |
+| `image_url` | `text` | Storage 경로. 예: `images/dog.jpg` |
+| `video_url` | `text` | 값이 있으면 **영상** 탭, 없으면 **이미지** 탭 |
+| `created_at` | `timestamptz` | 등록 시각 (최신순 정렬 기준) |
 
-### 3. 방문자는 조회만 가능하게 (RLS)
+### 3. 권한 설정 (RLS + GRANT)
 
-```sql
-alter table public.projects enable row level security;
+[`supabase/policies.sql`](supabase/policies.sql) 파일 전체를
+Supabase → **SQL Editor** → **New query** 에 붙여넣고 **Run** 하세요.
 
-create policy "누구나 조회 가능"
-  on public.projects
-  for select
-  to anon, authenticated
-  using (true);
-```
+- 읽기: 누구나 (로그인 없이도 포트폴리오가 보여야 하므로)
+- 쓰기: **관리자 UID 한 명만** — INSERT / UPDATE / DELETE 마다 UID를 검사
+- UPDATE는 `using`(기존 행) + `with check`(새 값) **둘 다** 검사
+- Storage는 `portfolio-media` 버킷의 `images/`, `videos/` 폴더만 허용
 
-`select` 정책만 만들었으므로 **읽기만 되고, 추가·수정·삭제는 차단**됩니다.
+> 이 SQL은 데이터를 지우지 않습니다. `DROP TABLE`/`DELETE`/`TRUNCATE`가 없습니다.
 
 ### 4. Storage 버킷
 
-- 버킷을 만들고 **Public** 으로 설정합니다. (비공개면 이미지가 안 보입니다)
-- `image_url` 에는 버킷 안의 경로만 넣습니다. 예: `works/dog.jpg`
+- 버킷 이름: `portfolio-media`, **Public** 으로 설정 (비공개면 이미지가 안 보입니다)
+- `image_url` / `video_url` 에는 버킷 안의 경로만 넣습니다. 예: `images/dog.jpg`
+
+## 관리자 로그인
+
+페이지 맨 아래 **"관리자 로그인"** 을 누르고 관리자 계정으로 로그인하면
+상단에 관리자 막대가 나타나고, 작품을 등록·수정·삭제할 수 있습니다.
+
+- 비밀번호는 **로그인 폼에서만** 입력받습니다. 코드·`.env`·저장소에 저장하지 않습니다.
+- `service_role` / `secret` 키는 사용하지 않습니다. 로그인한 사용자의 세션으로만 동작합니다.
+- 관리자가 아닌 계정으로 로그인하면 즉시 로그아웃됩니다.
+- 파일 업로드나 저장이 실패하면 **입력한 내용이 그대로 남습니다.** 이미 업로드된
+  파일은 다시 올리지 않고 재시도합니다.
 
 ## 화면 상태
 

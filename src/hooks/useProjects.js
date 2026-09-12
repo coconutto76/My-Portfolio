@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { supabase, supabaseConfigError, getStorageUrl } from '../lib/supabase'
 
 // ─────────────────────────────────────────────────────────────
@@ -30,15 +30,24 @@ function toWork(row, position) {
     year: createdAt ? String(createdAt.getFullYear()) : '',
     description: row.description || '',
     image: getStorageUrl(row.image_url),
-    videoUrl: hasVideo ? row.video_url : null,
+    videoUrl: hasVideo ? getStorageUrl(row.video_url) : null,
     category: hasVideo ? 'video' : 'image',
     meta: [],
     featured: position === 0,
+
+    // 관리자 수정 폼에서 쓰는 원본 값 (전체 주소가 아니라 Storage 경로)
+    rawId: row.id,
+    imagePath: row.image_url || '',
+    videoPath: row.video_url || '',
   }
 }
 
 export default function useProjects() {
   const [state, setState] = useState({ status: 'loading', works: null, error: null })
+  const [tick, setTick] = useState(0)
+
+  // 작품을 등록/수정/삭제한 뒤 목록을 다시 읽기 위해 호출한다.
+  const reload = useCallback(() => setTick((n) => n + 1), [])
 
   useEffect(() => {
     // 설정이 없거나 비밀키가 들어온 경우 — 조회를 시도하지 않고 바로 알린다.
@@ -101,7 +110,7 @@ export default function useProjects() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [tick])
 
-  return state
+  return { ...state, reload }
 }
