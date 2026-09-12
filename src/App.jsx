@@ -3,13 +3,17 @@ import NavBar from './components/NavBar'
 import CategoryPage from './components/CategoryPage'
 import Profile from './components/Profile'
 import WorkDetail from './components/WorkDetail'
-import { categories, works, profile } from './data'
+import useProjects from './hooks/useProjects'
+import { categories, profile } from './data'
 
 export default function App() {
-  const [tab, setTab] = useState('image') // image | video | pages | profile
+  const [tab, setTab] = useState('image') // image | video | profile
   const [selected, setSelected] = useState(null) // 상세 보기 중인 작품
   const worksRef = useRef(null)
   const footerRef = useRef(null)
+
+  // Supabase 의 projects 표에서 최신순으로 읽어온다.
+  const { status, works, error } = useProjects()
 
   // 탭이 바뀌면 맨 위 작품 영역으로
   useEffect(() => {
@@ -68,7 +72,9 @@ export default function App() {
           key={tab}
           label={categories.find((c) => c.key === tab).label}
           categoryKey={tab}
-          items={works[tab]}
+          items={works?.[tab]}
+          status={status}
+          error={error}
           onOpen={setSelected}
         />
       )}

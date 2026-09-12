@@ -33,11 +33,24 @@ export default function WorkDetail({ work, onClose }) {
           <p className="sub">{work.subtitle}</p>
           <p className="desc">{work.description}</p>
 
-          <div className="detail__tags">
-            {work.meta.map((m) => (
-              <span key={m}>{m}</span>
-            ))}
-          </div>
+          {work.videoUrl && (
+            <a
+              className="detail__video"
+              href={work.videoUrl}
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              ▶ 영상 보기
+            </a>
+          )}
+
+          {work.meta?.length > 0 && (
+            <div className="detail__tags">
+              {work.meta.map((m) => (
+                <span key={m}>{m}</span>
+              ))}
+            </div>
+          )}
 
           <p className="detail__year">{work.year}</p>
         </div>
