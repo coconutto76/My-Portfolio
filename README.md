@@ -119,3 +119,67 @@ Vercel → Settings → Environment Variables 에도 위 3개 변수를 똑같�
 
 - 로그인 / 작품 업로드 기능
 - Pages 카테고리 (표에 `category` 컬럼 추가 필요)
+
+---
+
+## 단일 파일 포트폴리오 (`standalone/index.html`)
+
+빌드 없이 **파일 하나로 도는** 새 포트폴리오입니다. 위의 React 앱과는 별개이며,
+기존 앱은 그대로 남아 있습니다.
+
+| 항목 | 내용 |
+| --- | --- |
+| 파일 | `standalone/index.html` (이것 하나만 있으면 됩니다) |
+| 페이지 | Profile(첫 화면) · Games · Papers · Records + Create(관리자 전용) |
+| 표 | `games`, `papers`, `records`, `profile` |
+| Storage | `portfolio-media` 버킷의 `games/` `papers/` `records/` `videos/` `profile/image/` `resumes/` |
+
+### 1. SQL 먼저 실행하기
+
+Supabase 대시보드 → SQL Editor → New query 에 **`supabase/portfolio-v3.sql`** 전체를
+붙여넣고 Run 합니다. 표를 만들고 권한을 설정합니다.
+
+> 이 SQL 을 실행하기 전에는 화면에 `Could not find the table 'public.games'` 라고 나옵니다.
+> 실행한 뒤 새로고침하면 사라집니다.
+
+**읽기는 누구나, 쓰기는 관리자 한 명만** 가능합니다. 방문자에게는 Create 버튼도,
+프로필 수정칸도 보이지 않고, 서버의 RLS 정책이 실제 쓰기를 막습니다.
+
+### 2. 관리자 로그인
+
+페이지 맨 아래 **Admin** 을 누르고 관리자 계정으로 로그인하면
+사이드바에 **Create** 버튼이 생기고 등록·수정·삭제가 열립니다.
+
+- 비밀번호는 로그인 화면에서만 입력받고 어디에도 저장하지 않습니다.
+- 관리자가 아닌 계정으로 로그인하면 즉시 로그아웃됩니다.
+- 저장이 실패하면 **입력한 내용이 그대로 남고**, 방금 올라간 파일만 지워집니다.
+
+### 3. 설정값
+
+파일 맨 위 `설정값` 블록 한 곳에만 주소와 키가 들어 있습니다. 다른 곳에는 없습니다.
+
+| 상수 | 지금 값 | 할 일 |
+| --- | --- | --- |
+| `VITE_SUPABASE_URL` | 실제 값 | — |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | 실제 값 (공개용 키라 브라우저에 노출돼도 됩니다) | — |
+| `VITE_YOUTUBE_CHANNEL_URL` | `https://www.youtube.com/` | 실제 채널 주소로 교체 |
+| `VITE_INSTAGRAM_URL` | `https://www.instagram.com/` | 실제 주소로 교체 |
+| `VITE_THREADS_URL` | `https://www.threads.net/` | 실제 주소로 교체 |
+| `VITE_LOGO_SRC` | `./logo.png` | 로고 파일을 같은 폴더에 두면 자동으로 씁니다. 없으면 내장 TPC SVG 가 나옵니다. |
+
+> `.env.local` 과 달리 이 파일에는 값이 직접 들어 있습니다. 빌드 과정이 없어서
+> 환경 변수를 읽을 방법이 없기 때문입니다. **Publishable(anon) 키만** 넣어야 하며,
+> `service_role` / `secret` 키를 넣으면 파일이 스스로 연결을 거부합니다.
+
+### 4. 보는 방법 · 배포
+
+로컬에서 보려면 `npm run dev` 후 <http://localhost:5173/standalone/index.html> 를 엽니다.
+(`file://` 로 직접 열면 CDN 과 Supabase 호출이 막힐 수 있습니다.)
+
+Vercel 에 올리는 두 가지 방법:
+
+1. 지금 앱과 **같이** 올리기 — `standalone/index.html` 을 `public/standalone.html` 로
+   복사하면 빌드 결과(`dist/`)에 그대로 들어가서 `배포주소/standalone.html` 로 열립니다.
+   (`public/` 안의 파일은 Vite 가 손대지 않고 그대로 복사합니다)
+2. 이 파일만 **따로** 올리기 — `standalone/` 폴더를 새 Vercel 프로젝트로 만들고
+   Framework Preset 을 `Other`, Build Command 는 비워 둡니다.
