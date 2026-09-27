@@ -18,7 +18,7 @@ export default function SectionPage({ section, status, items, error, onOpen, onB
       </div>
 
       {status !== 'ready' ? (
-        <StatusNotice status={status} error={error} categoryLabel={section.label} />
+        <StatusNotice status={status} error={error} categoryLabel={section.label} tableName={section.table} />
       ) : (
         <div className="masonry">
           {items.map((item, i) => (

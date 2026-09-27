@@ -22,7 +22,7 @@ export default function SectionPreview({ section, status, items, error, onOpen, 
       </div>
 
       {status !== 'ready' ? (
-        <StatusNotice status={status} error={error} categoryLabel={section.label} />
+        <StatusNotice status={status} error={error} categoryLabel={section.label} tableName={section.table} />
       ) : (
         <>
           <div className="preview-grid">

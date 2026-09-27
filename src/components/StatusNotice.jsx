@@ -1,24 +1,25 @@
 // 작품 목록 대신 보여주는 안내 문구.
 // 불러오는 중 / 등록된 작품 없음 / 연결 실패 를 각각 다르게 표시한다.
-export default function StatusNotice({ status, error, categoryLabel }) {
+export default function StatusNotice({ status, error, categoryLabel, tableName }) {
   if (status === 'loading') {
     return (
       <div className="notice notice--loading">
         <span className="notice__spinner" aria-hidden="true" />
-        <p className="notice__title">작품을 불러오는 중입니다…</p>
-        <p className="notice__body">Supabase에서 등록된 작품을 가져오고 있습니다.</p>
+        <p className="notice__title">불러오는 중입니다…</p>
+        <p className="notice__body">Supabase 에서 목록을 가져오고 있습니다.</p>
       </div>
     )
   }
 
   if (status === 'empty') {
+    const what = categoryLabel ?? '항목'
     return (
       <div className="notice">
         <p className="eyebrow">Empty</p>
-        <p className="notice__title">아직 등록된 작품이 없습니다.</p>
+        <p className="notice__title">아직 등록된 {what} 항목이 없습니다.</p>
         <p className="notice__body">
-          Supabase에는 정상적으로 연결되었지만, <code>projects</code> 표가 비어 있습니다.
-          {categoryLabel ? ` ‘${categoryLabel}’ 탭에 표시할 작품을 등록해 주세요.` : ''}
+          Supabase 에는 정상적으로 연결되었지만 {tableName ? <code>{tableName}</code> : '이 표'} 가 비어 있습니다.
+          주소 끝에 <code>?admin</code> 을 붙여 로그인하면 등록할 수 있습니다.
         </p>
       </div>
     )
