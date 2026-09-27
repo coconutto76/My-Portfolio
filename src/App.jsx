@@ -1,159 +1,163 @@
 import { useEffect, useRef, useState } from 'react'
 import NavBar from './components/NavBar'
-import CategoryPage from './components/CategoryPage'
-import Profile from './components/Profile'
-import WorkDetail from './components/WorkDetail'
+import ProfileSection from './components/ProfileSection'
+import SectionPreview from './components/SectionPreview'
+import SectionPage from './components/SectionPage'
+import ItemDetail from './components/ItemDetail'
+import ItemForm from './components/ItemForm'
 import AdminBar from './components/AdminBar'
 import LoginPanel from './components/LoginPanel'
-import WorkForm from './components/WorkForm'
-import useProjects from './hooks/useProjects'
+import useSection from './hooks/useSection'
+import useProfileRow from './hooks/useProfileRow'
 import useAuth from './hooks/useAuth'
-import { deleteProject } from './lib/admin'
-import { categories, profile } from './data'
+import { deleteRow, saveProfile } from './lib/admin'
+import { SECTIONS, SECTION_ORDER, PROFILE_FIELDS } from './lib/content'
+import { profile as fallback } from './data'
+
+// 주소에 ?admin 이 붙어 있으면 관리자 모드로 들어간다.
+// 화면 어디에도 로그인 버튼을 두지 않는다.
+function wantsAdmin() {
+  if (typeof window === 'undefined') return false
+  return new URLSearchParams(window.location.search).has('admin')
+}
 
 export default function App() {
-  const [tab, setTab] = useState('image') // image | video | profile
-  const [selected, setSelected] = useState(null) // 상세 보기 중인 작품
-  const worksRef = useRef(null)
-  const footerRef = useRef(null)
-
-  // Supabase 의 projects 표에서 최신순으로 읽어온다.
-  const { status, works, error, reload } = useProjects()
-
-  // 관리자 로그인 상태
-  const { user, isAdmin, signIn, signOut } = useAuth()
-
-  const [showLogin, setShowLogin] = useState(false)
-  // undefined = 닫힘 / null = 새 작품 / 작품객체 = 수정
-  const [formWork, setFormWork] = useState(undefined)
+  // 'home' 이면 Profile → Games → Papers → Records 가 이어서 흐른다.
+  const [view, setView] = useState('home')
+  const [selected, setSelected] = useState(null)
   const [adminError, setAdminError] = useState(null)
 
-  // 탭이 바뀌면 맨 위 작품 영역으로
-  useEffect(() => {
-    worksRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }, [tab])
+  // { sectionKey, item } 이면 등록/수정 폼, 'profile' 이면 소개 수정
+  const [form, setForm] = useState(null)
 
-  const handleNav = (key) => {
-    if (key === 'about') {
-      setTab('profile')
-    } else if (key === 'contact') {
-      footerRef.current?.scrollIntoView({ behavior: 'smooth' })
-    } else {
-      setTab((t) => (t === 'profile' ? 'image' : t))
-      worksRef.current?.scrollIntoView({ behavior: 'smooth' })
+  const games = useSection('games')
+  const papers = useSection('papers')
+  const records = useSection('records')
+  const data = { games, papers, records }
+
+  const profileRow = useProfileRow()
+  const { user, isAdmin, checking, signIn, signOut } = useAuth()
+
+  const [showLogin, setShowLogin] = useState(false)
+  const topRef = useRef(null)
+
+  // ?admin 으로 들어왔는데 아직 로그인 전이면 로그인 창을 띄운다.
+  useEffect(() => {
+    if (!checking && wantsAdmin() && !isAdmin) setShowLogin(true)
+  }, [checking, isAdmin])
+
+  // 화면을 바꾸면 위로 올린다.
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [view])
+
+  function handleNav(key) {
+    if (key === 'profile') {
+      setView('home')
+      // 이미 홈이면 맨 위로 스크롤
+      topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      return
     }
+    setView(key)
   }
 
-  const navActive = tab === 'profile' ? 'about' : 'works'
-
-  async function handleDelete(work) {
-    const ok = window.confirm(`"${work.title}" 작품을 삭제할까요? 되돌릴 수 없습니다.`)
-    if (!ok) return
-
+  async function handleDelete(item) {
+    const section = SECTIONS[item.sectionKey]
+    if (!window.confirm(`"${item.title}" 을(를) 삭제할까요? 되돌릴 수 없습니다.`)) return
     try {
-      await deleteProject(work.rawId)
+      await deleteRow(section.table, item.id)
       setSelected(null)
-      reload()
+      data[item.sectionKey].reload()
     } catch (err) {
       setAdminError(err.message)
     }
   }
 
   function handleSaved() {
-    setFormWork(undefined)
+    const target = form?.sectionKey
+    setForm(null)
     setSelected(null)
-    reload()
+    if (target === 'profile') profileRow.reload()
+    else if (target) data[target].reload()
   }
+
+  const activeNav = view === 'home' ? 'profile' : view
 
   return (
     <>
       {isAdmin && (
         <AdminBar
           email={user?.email}
-          onNewWork={() => setFormWork(null)}
+          sections={SECTION_ORDER.map((k) => SECTIONS[k])}
+          onNewItem={(key) => setForm({ sectionKey: key, item: null })}
           onSignOut={signOut}
         />
       )}
 
-      <NavBar onNavigate={handleNav} active={navActive} />
+      <span ref={topRef} />
+      <NavBar name={fallback.name} active={activeNav} onNavigate={handleNav} />
 
-      {/* 에디토리얼 헤더 */}
-      <div className="masthead wrap">
-        <h1 className="masthead__name">{profile.name}</h1>
-        <blockquote className="masthead__quote">{profile.role}</blockquote>
-        <div className="masthead__meta">
-          <span>Game Designer</span>
-          <span>{profile.location}</span>
-          <a href={`mailto:${profile.email}`}>{profile.email}</a>
-        </div>
-      </div>
+      {view === 'home' ? (
+        <>
+          <div className="masthead wrap">
+            <h1 className="masthead__name">{profileRow.row?.name || fallback.name}</h1>
+            <blockquote className="masthead__quote">{fallback.role}</blockquote>
+            <div className="masthead__meta">
+              <span>Game Designer</span>
+              <span>{fallback.location}</span>
+              <a href={`mailto:${fallback.email}`}>{fallback.email}</a>
+            </div>
+          </div>
 
-      {/* 카테고리 탭 */}
-      <div className="tabs" ref={worksRef}>
-        <div className="tabs__inner">
-          {categories.map((c) => (
-            <button
-              key={c.key}
-              className={tab === c.key ? 'is-active' : ''}
-              onClick={() => setTab(c.key)}
-            >
-              {c.label}
-            </button>
+          <ProfileSection
+            row={profileRow.row}
+            isAdmin={isAdmin}
+            onEdit={() => setForm({ sectionKey: 'profile', item: profileRow.row })}
+          />
+
+          {SECTION_ORDER.map((key) => (
+            <SectionPreview
+              key={key}
+              section={SECTIONS[key]}
+              status={data[key].status}
+              items={data[key].items}
+              error={data[key].error}
+              onOpen={setSelected}
+              onMore={setView}
+            />
           ))}
-        </div>
-      </div>
-
-      {/* 본문 */}
-      {tab === 'profile' ? (
-        <Profile />
+        </>
       ) : (
-        <CategoryPage
-          key={tab}
-          label={categories.find((c) => c.key === tab).label}
-          categoryKey={tab}
-          items={works?.[tab]}
-          status={status}
-          error={error}
+        <SectionPage
+          key={view}
+          section={SECTIONS[view]}
+          status={data[view].status}
+          items={data[view].items}
+          error={data[view].error}
           onOpen={setSelected}
+          onBack={() => setView('home')}
         />
       )}
 
-      {/* Contact 푸터 */}
-      <footer className="footer" ref={footerRef} id="contact">
+      <footer className="footer" id="contact">
         <div className="wrap">
           <p className="eyebrow">Contact</p>
-          <h2>
-            Let's make
-            <br />
-            something playful.
-          </h2>
-          <a className="mail" href={`mailto:${profile.email}`}>
-            {profile.email}
-          </a>
+          <h2>Let's make<br />something playful.</h2>
+          <a className="mail" href={`mailto:${fallback.email}`}>{fallback.email}</a>
           <div className="footer__base">
-            <span>
-              © {new Date().getFullYear()} {profile.name}
-            </span>
-            <span>
-              {isAdmin ? (
-                <button className="link-btn" onClick={signOut}>
-                  로그아웃
-                </button>
-              ) : (
-                <button className="link-btn" onClick={() => setShowLogin(true)}>
-                  관리자 로그인
-                </button>
-              )}
-            </span>
+            <span>© {new Date().getFullYear()} {fallback.name}</span>
+            {isAdmin && (
+              <button className="link-btn" onClick={signOut}>로그아웃</button>
+            )}
           </div>
         </div>
       </footer>
 
       {selected && (
-        <WorkDetail
-          work={selected}
+        <ItemDetail
+          item={selected}
           isAdmin={isAdmin}
-          onEdit={() => setFormWork(selected)}
+          onEdit={() => setForm({ sectionKey: selected.sectionKey, item: selected })}
           onDelete={() => handleDelete(selected)}
           onClose={() => setSelected(null)}
         />
@@ -163,20 +167,29 @@ export default function App() {
         <LoginPanel onSignIn={signIn} onClose={() => setShowLogin(false)} />
       )}
 
-      {formWork !== undefined && (
-        <WorkForm
-          work={formWork}
+      {form && form.sectionKey === 'profile' && (
+        <ItemForm
+          section={{ label: 'Profile', table: 'profile', fields: PROFILE_FIELDS }}
+          item={form.item}
+          saveFn={(payload) => saveProfile(form.item?.id ?? null, payload)}
           onSaved={handleSaved}
-          onClose={() => setFormWork(undefined)}
+          onClose={() => setForm(null)}
+        />
+      )}
+
+      {form && form.sectionKey !== 'profile' && (
+        <ItemForm
+          section={SECTIONS[form.sectionKey]}
+          item={form.item}
+          onSaved={handleSaved}
+          onClose={() => setForm(null)}
         />
       )}
 
       {adminError && (
         <div className="toast" role="alert">
           <span>{adminError}</span>
-          <button className="link-btn" onClick={() => setAdminError(null)}>
-            닫기
-          </button>
+          <button className="link-btn" onClick={() => setAdminError(null)}>닫기</button>
         </div>
       )}
     </>

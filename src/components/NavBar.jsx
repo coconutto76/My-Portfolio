@@ -1,27 +1,21 @@
-import { profile } from '../data'
+import { NAV_ITEMS } from '../lib/content'
 
-// 상단 내비게이션: 이름 + Works / About / Contact
-export default function NavBar({ onNavigate, active }) {
-  const links = [
-    { key: 'works', label: 'Works' },
-    { key: 'about', label: 'About' },
-    { key: 'contact', label: 'Contact' },
-  ]
-
+// 상단 내비게이션: 이름 + Profile / Games / Papers / Records
+export default function NavBar({ name, active, onNavigate }) {
   return (
     <header className="nav">
       <div className="nav__inner">
-        <button className="nav__brand" onClick={() => onNavigate('works')}>
-          {profile.name}
+        <button className="nav__brand" onClick={() => onNavigate('profile')}>
+          {name}
         </button>
         <nav className="nav__links">
-          {links.map((l) => (
+          {NAV_ITEMS.map((item) => (
             <button
-              key={l.key}
-              className={active === l.key ? 'is-active' : ''}
-              onClick={() => onNavigate(l.key)}
+              key={item.key}
+              className={active === item.key ? 'is-active' : ''}
+              onClick={() => onNavigate(item.key)}
             >
-              {l.label}
+              {item.label}
             </button>
           ))}
         </nav>

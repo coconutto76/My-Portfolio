@@ -1012,3 +1012,144 @@ a {
     align-items: flex-start;
   }
 }
+
+/* ──────────────────── 홈 미리보기 그리드 (고정 1 + 최신 2) ──────────────────── */
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(20px, 3.4vw, 48px);
+  align-items: start;
+}
+
+/* 첫 칸(고정 항목)을 크게 — 비대칭 리듬 */
+.preview-grid > *:first-child {
+  grid-row: span 2;
+}
+
+.more-link {
+  margin-top: clamp(28px, 4vw, 48px);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-serif);
+  font-size: clamp(16px, 1.8vw, 20px);
+  color: var(--key);
+  border-bottom: 1px solid var(--key);
+  padding-bottom: 5px;
+}
+
+.more-link:hover {
+  opacity: 0.7;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: clamp(20px, 3vw, 36px);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
+
+.back-link:hover {
+  color: var(--key);
+}
+
+/* 고정 표시 */
+.pin-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--key);
+  color: #fff;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  padding: 4px 9px;
+}
+
+/* ──────────────────── 상세 보기의 링크와 항목표 ──────────────────── */
+.detail__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-bottom: 26px;
+}
+
+.detail__links a {
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  color: var(--key);
+  border-bottom: 1px solid var(--key);
+  padding-bottom: 3px;
+}
+
+.detail__facts {
+  border-top: 1px solid var(--line);
+  margin-bottom: 8px;
+}
+
+.detail__facts > div {
+  display: flex;
+  gap: 20px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.detail__facts dt {
+  width: 80px;
+  flex: none;
+  color: var(--ink-soft);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding-top: 2px;
+}
+
+/* ──────────────────── Profile 영역의 버튼들 ──────────────────── */
+.profile__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+/* 체크박스 한 줄 */
+.field--inline {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.field--inline input[type='checkbox'] {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--key);
+}
+
+.field--inline span {
+  font-size: 14px;
+}
+
+/* ──────────────────── 반응형 (미리보기 그리드) ──────────────────── */
+@media (max-width: 1000px) {
+  .preview-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .preview-grid > *:first-child {
+    grid-row: auto;
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .preview-grid {
+    grid-template-columns: 1fr;
+  }
+  .preview-grid > *:first-child {
+    grid-column: auto;
+  }
+  .detail__facts > div {
+    flex-direction: column;
+    gap: 2px;
+  }
+}
