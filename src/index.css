@@ -497,12 +497,6 @@ a {
   padding: 6px 12px;
 }
 
-.detail__year {
-  margin-top: 28px;
-  font-family: var(--font-serif);
-  font-style: italic;
-  color: var(--ink-soft);
-}
 
 /* ───────────────────────────── 프로필 ───────────────────────────── */
 .profile {
@@ -1152,4 +1146,119 @@ a {
     flex-direction: column;
     gap: 2px;
   }
+}
+
+/* ──────────────────── 카드 내부 버튼 (카드가 div 가 되면서 필요) ──────────────────── */
+.card__open {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0;
+}
+
+/* ──────────────────── 키워드 칩 ──────────────────── */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.chips--detail {
+  margin-bottom: 26px;
+}
+
+.chip {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  padding: 5px 11px;
+  border-radius: 999px;
+  transition: all 0.15s ease;
+}
+
+.chip:hover {
+  border-color: var(--key);
+  color: var(--key);
+}
+
+.chip.is-on {
+  background: var(--key);
+  border-color: var(--key);
+  color: #fff;
+}
+
+/* ──────────────────── 키워드 강조 / 흐리게 ──────────────────── */
+.card.is-hit .card__frame {
+  outline: 2px solid var(--key);
+  outline-offset: 3px;
+}
+
+.card.is-hit .card__frame img {
+  filter: grayscale(0%);
+}
+
+.card.is-dim {
+  opacity: 0.3;
+}
+
+.card.is-dim:hover {
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .card {
+    transition: opacity 0.25s ease;
+  }
+}
+
+/* 키워드가 켜졌을 때 상단에 뜨는 안내줄 */
+.keyword-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  border: 1px solid var(--key);
+  border-left-width: 3px;
+  padding: 13px 18px;
+  margin-bottom: clamp(24px, 3vw, 40px);
+  font-size: 14px;
+}
+
+.keyword-bar strong {
+  color: var(--key);
+}
+
+/* ──────────────────── 게임 진행 상황 ──────────────────── */
+.progress-box {
+  border-left: 3px solid var(--key);
+  padding: 4px 0 4px 16px;
+  margin-bottom: 26px;
+}
+
+.progress-box p:last-child {
+  margin-top: 6px;
+}
+
+/* ──────────────────── 드롭다운 ──────────────────── */
+.field select {
+  width: 100%;
+  border: 1px solid var(--line);
+  padding: 11px 13px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.field select:focus {
+  outline: none;
+  border-color: var(--key);
+}
+
+.field input:disabled {
+  background: #f6f6f6;
+  color: var(--ink-soft);
 }

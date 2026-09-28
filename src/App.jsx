@@ -22,13 +22,15 @@ function wantsAdmin() {
 }
 
 export default function App() {
-  // 'home' 이면 Profile → Games → Papers → Records 가 이어서 흐른다.
   const [view, setView] = useState('home')
   const [selected, setSelected] = useState(null)
   const [adminError, setAdminError] = useState(null)
 
-  // { sectionKey, item } 이면 등록/수정 폼, 'profile' 이면 소개 수정
+  // { sectionKey, item } 이면 글 폼, { profile: true } 면 소개 폼
   const [form, setForm] = useState(null)
+
+  // 어떤 섹션에서 어떤 키워드가 켜져 있는지 — { games: '중독', ... }
+  const [activeKeywords, setActiveKeywords] = useState({})
 
   const games = useSection('games')
   const papers = useSection('papers')
@@ -41,12 +43,10 @@ export default function App() {
   const [showLogin, setShowLogin] = useState(false)
   const topRef = useRef(null)
 
-  // ?admin 으로 들어왔는데 아직 로그인 전이면 로그인 창을 띄운다.
   useEffect(() => {
     if (!checking && wantsAdmin() && !isAdmin) setShowLogin(true)
   }, [checking, isAdmin])
 
-  // 화면을 바꾸면 위로 올린다.
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [view])
@@ -54,10 +54,26 @@ export default function App() {
   function handleNav(key) {
     if (key === 'profile') {
       setView('home')
-      // 이미 홈이면 맨 위로 스크롤
       topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       return
     }
+    setView(key)
+  }
+
+  // 같은 키워드를 다시 누르면 해제된다.
+  function toggleKeyword(sectionKey, word) {
+    setActiveKeywords((prev) => ({
+      ...prev,
+      [sectionKey]: prev[sectionKey] === word ? null : word,
+    }))
+  }
+
+  // 상세 보기에서 키워드를 누르면 그 섹션 목록으로 이동해 강조한다.
+  function keywordFromDetail(word) {
+    const key = selected?.sectionKey
+    if (!key) return
+    setActiveKeywords((prev) => ({ ...prev, [key]: word }))
+    setSelected(null)
     setView(key)
   }
 
@@ -73,12 +89,12 @@ export default function App() {
     }
   }
 
-  function handleSaved() {
-    const target = form?.sectionKey
+  function handleSaved(savedSectionKey) {
+    const wasProfile = form?.profile
     setForm(null)
     setSelected(null)
-    if (target === 'profile') profileRow.reload()
-    else if (target) data[target].reload()
+    if (wasProfile) profileRow.reload()
+    else if (savedSectionKey && data[savedSectionKey]) data[savedSectionKey].reload()
   }
 
   const activeNav = view === 'home' ? 'profile' : view
@@ -88,8 +104,8 @@ export default function App() {
       {isAdmin && (
         <AdminBar
           email={user?.email}
-          sections={SECTION_ORDER.map((k) => SECTIONS[k])}
-          onNewItem={(key) => setForm({ sectionKey: key, item: null })}
+          onNewPost={() => setForm({ sectionKey: null, item: null })}
+          onEditProfile={() => setForm({ profile: true, item: profileRow.row })}
           onSignOut={signOut}
         />
       )}
@@ -112,7 +128,7 @@ export default function App() {
           <ProfileSection
             row={profileRow.row}
             isAdmin={isAdmin}
-            onEdit={() => setForm({ sectionKey: 'profile', item: profileRow.row })}
+            onEdit={() => setForm({ profile: true, item: profileRow.row })}
           />
 
           {SECTION_ORDER.map((key) => (
@@ -124,6 +140,8 @@ export default function App() {
               error={data[key].error}
               onOpen={setSelected}
               onMore={setView}
+              activeKeyword={activeKeywords[key] ?? null}
+              onKeyword={toggleKeyword}
             />
           ))}
         </>
@@ -136,6 +154,8 @@ export default function App() {
           error={data[view].error}
           onOpen={setSelected}
           onBack={() => setView('home')}
+          activeKeyword={activeKeywords[view] ?? null}
+          onKeyword={toggleKeyword}
         />
       )}
 
@@ -146,9 +166,7 @@ export default function App() {
           <a className="mail" href={`mailto:${fallback.email}`}>{fallback.email}</a>
           <div className="footer__base">
             <span>© {new Date().getFullYear()} {fallback.name}</span>
-            {isAdmin && (
-              <button className="link-btn" onClick={signOut}>로그아웃</button>
-            )}
+            {isAdmin && <button className="link-btn" onClick={signOut}>로그아웃</button>}
           </div>
         </div>
       </footer>
@@ -160,16 +178,15 @@ export default function App() {
           onEdit={() => setForm({ sectionKey: selected.sectionKey, item: selected })}
           onDelete={() => handleDelete(selected)}
           onClose={() => setSelected(null)}
+          onKeyword={keywordFromDetail}
         />
       )}
 
-      {showLogin && (
-        <LoginPanel onSignIn={signIn} onClose={() => setShowLogin(false)} />
-      )}
+      {showLogin && <LoginPanel onSignIn={signIn} onClose={() => setShowLogin(false)} />}
 
-      {form && form.sectionKey === 'profile' && (
+      {form?.profile && (
         <ItemForm
-          section={{ label: 'Profile', table: 'profile', fields: PROFILE_FIELDS }}
+          profileSection={{ label: 'Profile', table: 'profile', fields: PROFILE_FIELDS }}
           item={form.item}
           saveFn={(payload) => saveProfile(form.item?.id ?? null, payload)}
           onSaved={handleSaved}
@@ -177,9 +194,9 @@ export default function App() {
         />
       )}
 
-      {form && form.sectionKey !== 'profile' && (
+      {form && !form.profile && (
         <ItemForm
-          section={SECTIONS[form.sectionKey]}
+          sectionKey={form.sectionKey}
           item={form.item}
           onSaved={handleSaved}
           onClose={() => setForm(null)}

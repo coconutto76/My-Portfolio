@@ -3,7 +3,7 @@ import SmartImage from './SmartImage'
 import { getStorageUrl } from '../lib/supabase'
 
 // 상세 보기: 이미지(좌) + 설명(우) 2단. 모바일에서는 위아래로 쌓인다.
-export default function ItemDetail({ item, isAdmin, onEdit, onDelete, onClose }) {
+export default function ItemDetail({ item, isAdmin, onEdit, onDelete, onClose, onKeyword }) {
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
@@ -17,7 +17,6 @@ export default function ItemDetail({ item, isAdmin, onEdit, onDelete, onClose })
   const links = [
     { label: '바로가기', href: item.url || item.link_url },
     { label: '유튜브에서 보기', href: item.youtube_url },
-    { label: 'PDF 보기', href: getStorageUrl(item.pdf_url) },
     { label: '영상 보기', href: getStorageUrl(item.video_url) },
   ].filter((l) => l.href)
 
@@ -26,14 +25,13 @@ export default function ItemDetail({ item, isAdmin, onEdit, onDelete, onClose })
     ['역할', item.role],
     ['종류', item.project_type],
     ['발표처', item.venue],
-    ['키워드', item.keywords],
     ['출처', item.source],
   ].filter(([, v]) => v)
 
   return (
     <div className="detail" role="dialog" aria-modal="true">
       <div className="detail__bar">
-        <span className="idx">{item.pinned ? '고정' : ''}</span>
+        <span className="idx">{item.pinned ? `고정 ${item.pinOrder}` : ''}</span>
         <span className="detail__bar-right">
           {isAdmin && (
             <>
@@ -56,12 +54,29 @@ export default function ItemDetail({ item, isAdmin, onEdit, onDelete, onClose })
           {item.subtitle && <p className="sub">{item.subtitle}</p>}
           {item.body && <p className="desc">{item.body}</p>}
 
+          {item.progress && (
+            <div className="progress-box">
+              <p className="eyebrow">현재 진행 상황</p>
+              <p>{item.progress}</p>
+            </div>
+          )}
+
           {links.length > 0 && (
             <div className="detail__links">
               {links.map((l) => (
                 <a key={l.label} href={l.href} target="_blank" rel="noreferrer noopener">
                   {l.label} →
                 </a>
+              ))}
+            </div>
+          )}
+
+          {item.keywordList.length > 0 && (
+            <div className="chips chips--detail">
+              {item.keywordList.map((k) => (
+                <button key={k} className="chip" onClick={() => onKeyword(k)}>
+                  {k}
+                </button>
               ))}
             </div>
           )}
@@ -76,8 +91,6 @@ export default function ItemDetail({ item, isAdmin, onEdit, onDelete, onClose })
               ))}
             </dl>
           )}
-
-          {item.dateLabel && <p className="detail__year">{item.dateLabel}</p>}
         </div>
       </div>
     </div>

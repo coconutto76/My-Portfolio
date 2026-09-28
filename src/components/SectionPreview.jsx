@@ -1,12 +1,16 @@
 import ItemCard from './ItemCard'
 import StatusNotice from './StatusNotice'
+import { PREVIEW_COUNT } from '../lib/content'
 
 // 홈 화면에 들어가는 섹션 미리보기.
-// 고정(pinned) 1개 + 최신 2개만 보여주고, 나머지는 '더보기'로 넘긴다.
-export default function SectionPreview({ section, status, items, error, onOpen, onMore }) {
-  const pinned = items.find((i) => i.pinned) ?? null
-  const rest = items.filter((i) => i !== pinned).slice(0, pinned ? 2 : 3)
-  const preview = pinned ? [pinned, ...rest] : rest
+// 고정(pin_order 1·2·3)을 왼쪽부터 차례로 놓고,
+// 고정이 3개가 안 되면 최신 글로 나머지 자리를 채운다.
+export default function SectionPreview({
+  section, status, items, error, onOpen, onMore, activeKeyword, onKeyword,
+}) {
+  const pinned = items.filter((i) => i.pinned).slice(0, PREVIEW_COUNT)
+  const filler = items.filter((i) => !i.pinned).slice(0, PREVIEW_COUNT - pinned.length)
+  const preview = [...pinned, ...filler]
   const hidden = items.length - preview.length
 
   return (
@@ -22,12 +26,24 @@ export default function SectionPreview({ section, status, items, error, onOpen, 
       </div>
 
       {status !== 'ready' ? (
-        <StatusNotice status={status} error={error} categoryLabel={section.label} tableName={section.table} />
+        <StatusNotice
+          status={status}
+          error={error}
+          categoryLabel={section.label}
+          tableName={section.table}
+        />
       ) : (
         <>
           <div className="preview-grid">
             {preview.map((item, i) => (
-              <ItemCard key={item.id} item={item} index={i} onOpen={onOpen} />
+              <ItemCard
+                key={item.id}
+                item={item}
+                index={i}
+                onOpen={onOpen}
+                activeKeyword={activeKeyword}
+                onKeyword={(k) => onKeyword(section.key, k)}
+              />
             ))}
           </div>
 
