@@ -10,15 +10,15 @@
 // 홈에 고정할 자리. 비우면 고정하지 않는다.
 const PIN_FIELD = {
   name: 'pin_order',
-  label: '홈 화면 고정 자리',
+  label: '첫 화면에 올리기',
   type: 'select',
   options: [
-    { value: '', label: '고정 안 함' },
-    { value: '1', label: '1번 (왼쪽)' },
-    { value: '2', label: '2번 (가운데)' },
-    { value: '3', label: '3번 (오른쪽)' },
+    { value: '', label: '올리지 않음' },
+    { value: '1', label: '첫 번째' },
+    { value: '2', label: '두 번째' },
+    { value: '3', label: '세 번째' },
   ],
-  hint: '같은 자리를 두 글에 주면 먼저 등록한 글이 밀립니다.',
+  hint: '왼쪽부터 1·2·3 순서로 놓입니다. 비워 두면 최신순으로 들어갑니다.',
 }
 
 const KEYWORDS_FIELD = {
@@ -26,7 +26,7 @@ const KEYWORDS_FIELD = {
   label: '키워드',
   type: 'text',
   placeholder: '중독, 몰입, 협동  (쉼표로 구분)',
-  hint: '화면에서 키워드를 누르면 같은 키워드를 가진 글이 강조됩니다.',
+  hint: '누르면 세 카테고리 전체에서 같은 키워드를 가진 글이 드러납니다.',
 }
 
 export const SECTIONS = {
@@ -35,7 +35,7 @@ export const SECTIONS = {
     table: 'games',
     label: 'Games',
     heading: 'Games',
-    blurb: '제가 만든 게임 프로젝트',
+    blurb: '규칙과 보상으로 사회적 질문을 설계한 작업',
     folder: 'games',
     imageField: 'cover_image_url',
     columns:
@@ -63,7 +63,7 @@ export const SECTIONS = {
     table: 'papers',
     label: 'Papers',
     heading: 'Papers',
-    blurb: '제가 쓴 게임 관련 글과 논문',
+    blurb: '게임과 사회를 잇는 연구와 비평',
     folder: 'papers',
     imageField: 'cover_image_url',
     columns:
@@ -87,7 +87,7 @@ export const SECTIONS = {
     table: 'records',
     label: 'Records',
     heading: 'Records',
-    blurb: '제 글이나 작업이 언급된 기록',
+    blurb: '작업과 글이 바깥에 놓인 자리',
     folder: 'records',
     imageField: 'cover_image_url',
     columns: 'id, title, url, description, source, year, keywords, cover_image_url, pin_order, created_at',

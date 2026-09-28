@@ -1,36 +1,28 @@
 // ─────────────────────────────────────────────────────────────
-// 화면에 고정으로 들어가는 내용 (프로필 / 탭 목록)
+// 화면에 고정으로 들어가는 내용 (프로필 / 내비게이션)
 //
-// 작품 데이터는 여기 없다. Supabase 의 projects 표에서 읽어온다.
-//   → src/hooks/useProjects.js
+// 작품 데이터는 여기 없다. Supabase 의 games / papers / records 표에서 읽는다.
+//   → src/hooks/useSection.js
+//
+// profile 표에 값이 채워져 있으면 그쪽이 우선이고,
+// 비어 있을 때만 아래 값이 쓰인다.
 // ─────────────────────────────────────────────────────────────
 
 export const profile = {
   name: '송민서',
   role: '재미와 결합된 임팩트 게임 디자이너',
-  intro:
-    '플레이어가 웃는 순간에 세상을 바꾸는 질문을 심는다. 재미를 잃지 않으면서 사회적 임팩트를 만드는 게임을 설계한다.',
   email: 'lollop67@g.skku.edu',
   location: 'Seoul, KR',
   portrait: '/images/profile.jpg',
+
+  intro:
+    '게임을 사회를 읽는 방법으로 다룹니다. 규칙과 보상이 사람의 선택을 어떻게 바꾸는지 설계하고, 만들고, 기록합니다.',
+
   bio: [
-    '성균관대학교에서 게임 디자인을 공부하며, 놀이의 힘으로 실제 행동 변화를 이끄는 프로젝트에 집중해 왔습니다.',
-    '기획서와 프로토타입, 레벨 디자인, 내러티브까지 아우르며 "가볍게 시작해서 오래 남는" 경험을 만드는 것을 목표로 합니다.',
+    '만드는 일과 연구하는 일을 함께 합니다. 프로토타입으로 질문을 세우고, 플레이테스트로 검증한 뒤, 글로 남깁니다.',
   ],
-  skills: [
-    'Game Design',
-    'Level Design',
-    'Narrative Design',
-    'Rapid Prototyping',
-    'Playtesting',
-    'Figma / Unity',
-  ],
+
+  skills: ['임팩트 게임', '내러톨로지', '게임 내 로맨스'],
 }
 
-// 탭 목록.
-// 작품은 projects 표의 video_url 유무로 '이미지' / '영상' 으로 나뉜다.
-export const categories = [
-  { key: 'image', label: '이미지' },
-  { key: 'video', label: '영상' },
-  { key: 'profile', label: 'Profile' },
-]
+

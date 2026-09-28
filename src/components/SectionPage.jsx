@@ -7,7 +7,7 @@ export default function SectionPage({
 }) {
   return (
     <section className="section wrap">
-      <button className="back-link" onClick={onBack}>← Profile 로 돌아가기</button>
+      <button className="back-link" onClick={onBack}>← 처음으로</button>
 
       <div className="section__head">
         <div>
@@ -15,7 +15,7 @@ export default function SectionPage({
           <h2 className="section__title">{section.heading}</h2>
         </div>
         {status === 'ready' && (
-          <p className="eyebrow">{String(items.length).padStart(2, '0')} entries</p>
+          <p className="eyebrow">{String(items.length).padStart(2, "0")}</p>
         )}
       </div>
 

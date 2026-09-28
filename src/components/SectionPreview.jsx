@@ -21,7 +21,7 @@ export default function SectionPreview({
           <h2 className="section__title">{section.heading}</h2>
         </div>
         {status === 'ready' && (
-          <p className="eyebrow">{String(items.length).padStart(2, '0')} entries</p>
+          <p className="eyebrow">{String(items.length).padStart(2, "0")}</p>
         )}
       </div>
 
@@ -40,6 +40,7 @@ export default function SectionPreview({
                 key={item.id}
                 item={item}
                 index={i}
+                ratio="4 / 3"
                 onOpen={onOpen}
                 activeKeyword={activeKeyword}
                 onKeyword={onKeyword}
@@ -48,8 +49,8 @@ export default function SectionPreview({
           </div>
 
           <button className="more-link" onClick={() => onMore(section.key)}>
-            {section.label} 더보기
-            {hidden > 0 ? ` (${hidden}개 더)` : ''} →
+            전체 보기{hidden > 0 ? ` (+${hidden})` : ''}
+            <span aria-hidden="true">→</span>
           </button>
         </>
       )}

@@ -157,7 +157,7 @@ export default function App() {
       <footer className="footer" id="contact">
         <div className="wrap">
           <p className="eyebrow">Contact</p>
-          <h2>Let's make<br />something playful.</h2>
+          <h2>Play is how<br />we rehearse society.</h2>
           <a className="mail" href={`mailto:${fallback.email}`}>{fallback.email}</a>
           <div className="footer__base">
             <span>© {new Date().getFullYear()} {fallback.name}</span>

@@ -8,7 +8,7 @@ export default function SmartImage({ src, alt, ratio = '4 / 3' }) {
   if (failed) {
     return (
       <div className="ph" style={{ '--ph-ratio': ratio }}>
-        <span>이미지 자리</span>
+        <span>No image</span>
         <span>
           {src
             ? '이미지를 불러올 수 없습니다 (Storage 버킷이 Public 인지 확인해 주세요)'

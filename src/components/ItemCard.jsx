@@ -2,9 +2,9 @@ import SmartImage from './SmartImage'
 
 // 목록에 들어가는 카드 하나.
 // 키워드가 선택되면 해당 키워드를 가진 카드만 강조되고 나머지는 흐려진다.
-export default function ItemCard({ item, index, onOpen, activeKeyword, onKeyword }) {
+export default function ItemCard({ item, index, onOpen, activeKeyword, onKeyword, ratio: fixedRatio }) {
   const ratios = ['3 / 4', '4 / 3', '1 / 1', '5 / 4']
-  const ratio = ratios[index % ratios.length]
+  const ratio = fixedRatio ?? ratios[index % ratios.length]
   const num = String(index + 1).padStart(2, '0')
 
   const matches = activeKeyword ? item.keywordList.includes(activeKeyword) : null
@@ -15,10 +15,13 @@ export default function ItemCard({ item, index, onOpen, activeKeyword, onKeyword
   return (
     <div className={cls}>
       <button className="card__open" onClick={() => onOpen(item)}>
-        <div className="card__frame">
+        <div
+          className={`card__frame${fixedRatio ? ' card__frame--fixed' : ''}`}
+          style={fixedRatio ? { '--ratio': fixedRatio } : undefined}
+        >
           <SmartImage src={item.image} alt={item.title} ratio={ratio} />
           <span className="card__index">{num}</span>
-          {item.pinned && <span className="pin-badge">고정 {item.pinOrder}</span>}
+          {item.pinned && <span className="pin-dot" aria-label="선정작" />}
         </div>
         <div className="card__caption">
           <span className="num">{num}</span>

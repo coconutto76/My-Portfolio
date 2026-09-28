@@ -35,13 +35,13 @@ export default function ProfileSection({ row, isAdmin, onEdit, activeKeyword, on
                 이력서 보기
               </a>
             )}
-            <a className="btn" href={`mailto:${fallback.email}`}>이메일 보내기</a>
+            <a className="btn" href={`mailto:${fallback.email}`}>연락하기</a>
             {isAdmin && <button className="btn btn--sm" onClick={onEdit}>소개 수정</button>}
           </div>
 
           {interests.length > 0 && (
             <>
-              <p className="eyebrow profile__chips-label">관심 분야 — 눌러서 관련 글 찾기</p>
+              <p className="eyebrow profile__chips-label">관심 주제</p>
               <div className="chips">
                 {interests.map((k) => (
                   <button

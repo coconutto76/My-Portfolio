@@ -31,7 +31,7 @@ export default function ItemDetail({ item, isAdmin, onEdit, onDelete, onClose, o
   return (
     <div className="detail" role="dialog" aria-modal="true">
       <div className="detail__bar">
-        <span className="idx">{item.pinned ? `고정 ${item.pinOrder}` : ''}</span>
+        <span className="idx">{item.pinned ? 'Selected' : ''}</span>
         <span className="detail__bar-right">
           {isAdmin && (
             <>

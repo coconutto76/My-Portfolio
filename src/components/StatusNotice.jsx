@@ -5,8 +5,8 @@ export default function StatusNotice({ status, error, categoryLabel, tableName }
     return (
       <div className="notice notice--loading">
         <span className="notice__spinner" aria-hidden="true" />
-        <p className="notice__title">불러오는 중입니다…</p>
-        <p className="notice__body">Supabase 에서 목록을 가져오고 있습니다.</p>
+        <p className="notice__title">불러오는 중</p>
+        <p className="notice__body">잠시만 기다려 주세요.</p>
       </div>
     )
   }
@@ -16,7 +16,7 @@ export default function StatusNotice({ status, error, categoryLabel, tableName }
     return (
       <div className="notice">
         <p className="eyebrow">Empty</p>
-        <p className="notice__title">아직 등록된 {what} 항목이 없습니다.</p>
+        <p className="notice__title">아직 비어 있습니다</p>
         <p className="notice__body">
           Supabase 에는 정상적으로 연결되었지만 {tableName ? <code>{tableName}</code> : '이 표'} 가 비어 있습니다.
           주소 끝에 <code>?admin</code> 을 붙여 로그인하면 등록할 수 있습니다.
