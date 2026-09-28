@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
-import NavBar from './components/NavBar'
-import ProfileSection from './components/ProfileSection'
-import SectionPreview from './components/SectionPreview'
-import SectionPage from './components/SectionPage'
+import { useEffect, useState } from 'react'
+import Sidebar from './components/Sidebar'
+import IndexList from './components/IndexList'
+import HoverPreview from './components/HoverPreview'
 import ItemDetail from './components/ItemDetail'
 import ItemForm from './components/ItemForm'
 import AdminBar from './components/AdminBar'
@@ -12,7 +11,6 @@ import useProfileRow from './hooks/useProfileRow'
 import useAuth from './hooks/useAuth'
 import { deleteRow, saveProfile } from './lib/admin'
 import { SECTIONS, SECTION_ORDER, PROFILE_FIELDS } from './lib/content'
-import { profile as fallback } from './data'
 
 // 주소에 ?admin 이 붙어 있으면 관리자 모드로 들어간다.
 // 화면 어디에도 로그인 버튼을 두지 않는다.
@@ -21,15 +19,15 @@ function wantsAdmin() {
   return new URLSearchParams(window.location.search).has('admin')
 }
 
+// 첫 화면에서 섹션마다 보여줄 줄 수
+const HOME_LIMIT = 3
+
 export default function App() {
   const [view, setView] = useState('home')
   const [selected, setSelected] = useState(null)
+  const [hovered, setHovered] = useState(null)
   const [adminError, setAdminError] = useState(null)
-
-  // { sectionKey, item } 이면 글 폼, { profile: true } 면 소개 폼
   const [form, setForm] = useState(null)
-
-  // 지금 켜져 있는 키워드 하나. games/papers/records 전체에 함께 적용된다.
   const [activeKeyword, setActiveKeyword] = useState(null)
 
   const games = useSection('games')
@@ -39,37 +37,31 @@ export default function App() {
 
   const profileRow = useProfileRow()
   const { user, isAdmin, checking, signIn, signOut } = useAuth()
-
   const [showLogin, setShowLogin] = useState(false)
-  const topRef = useRef(null)
 
   useEffect(() => {
     if (!checking && wantsAdmin() && !isAdmin) setShowLogin(true)
   }, [checking, isAdmin])
 
+  // 화면을 바꾸면 본문을 맨 위로
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    document.querySelector('.main')?.scrollTo({ top: 0, behavior: 'smooth' })
+    setHovered(null)
   }, [view])
 
   function handleNav(key) {
     if (key === 'profile') {
       setView('home')
-      topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      document.querySelector('.main')?.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
     setView(key)
   }
 
-  // 같은 키워드를 다시 누르면 해제된다. 섹션 구분 없이 전체에 적용된다.
   function toggleKeyword(word) {
     setActiveKeyword((prev) => (prev === word ? null : word))
   }
 
-  // 상세 보기에서 키워드를 누르면 창을 닫고 그 키워드를 켠다.
-  function keywordFromDetail(word) {
-    setActiveKeyword(word)
-    setSelected(null)
-  }
   async function handleDelete(item) {
     const section = SECTIONS[item.sectionKey]
     if (!window.confirm(`"${item.title}" 을(를) 삭제할까요? 되돌릴 수 없습니다.`)) return
@@ -91,6 +83,7 @@ export default function App() {
   }
 
   const activeNav = view === 'home' ? 'profile' : view
+  const sectionsToShow = view === 'home' ? SECTION_ORDER : [view]
 
   return (
     <>
@@ -103,68 +96,45 @@ export default function App() {
         />
       )}
 
-      <span ref={topRef} />
-      <NavBar name={fallback.name} active={activeNav} onNavigate={handleNav} />
+      <div className="layout">
+        <Sidebar
+          row={profileRow.row}
+          active={activeNav}
+          onNavigate={handleNav}
+          isAdmin={isAdmin}
+          onEditProfile={() => setForm({ profile: true, item: profileRow.row })}
+          activeKeyword={activeKeyword}
+          onKeyword={toggleKeyword}
+        />
 
-      {view === 'home' ? (
-        <>
-          <div className="masthead wrap">
-            <h1 className="masthead__name">{profileRow.row?.name || fallback.name}</h1>
-            <blockquote className="masthead__quote">{fallback.role}</blockquote>
-            <div className="masthead__meta">
-              <span>Game Designer</span>
-              <span>{fallback.location}</span>
-              <a href={`mailto:${fallback.email}`}>{fallback.email}</a>
-            </div>
-          </div>
+        <main className="main">
+          {view !== 'home' && (
+            <button className="main__back" onClick={() => setView('home')}>
+              ← 전체 인덱스
+            </button>
+          )}
 
-          <ProfileSection
-            row={profileRow.row}
-            isAdmin={isAdmin}
-            onEdit={() => setForm({ profile: true, item: profileRow.row })}
-            activeKeyword={activeKeyword}
-            onKeyword={toggleKeyword}
-          />
-
-          {SECTION_ORDER.map((key) => (
-            <SectionPreview
+          {sectionsToShow.map((key) => (
+            <IndexList
               key={key}
               section={SECTIONS[key]}
               status={data[key].status}
               items={data[key].items}
               error={data[key].error}
+              limit={view === 'home' ? HOME_LIMIT : null}
               onOpen={setSelected}
               onMore={setView}
               activeKeyword={activeKeyword}
               onKeyword={toggleKeyword}
+              onHover={setHovered}
             />
           ))}
-        </>
-      ) : (
-        <SectionPage
-          key={view}
-          section={SECTIONS[view]}
-          status={data[view].status}
-          items={data[view].items}
-          error={data[view].error}
-          onOpen={setSelected}
-          onBack={() => setView('home')}
-          activeKeyword={activeKeyword}
-          onKeyword={toggleKeyword}
-        />
-      )}
 
-      <footer className="footer" id="contact">
-        <div className="wrap">
-          <p className="eyebrow">Contact</p>
-          <h2>Play is how<br />we rehearse society.</h2>
-          <a className="mail" href={`mailto:${fallback.email}`}>{fallback.email}</a>
-          <div className="footer__base">
-            <span>© {new Date().getFullYear()} {fallback.name}</span>
-            {isAdmin && <button className="link-btn" onClick={signOut}>로그아웃</button>}
-          </div>
-        </div>
-      </footer>
+          <p className="main__end">Play is how we rehearse society.</p>
+        </main>
+      </div>
+
+      <HoverPreview item={hovered} />
 
       {selected && (
         <ItemDetail
@@ -173,7 +143,10 @@ export default function App() {
           onEdit={() => setForm({ sectionKey: selected.sectionKey, item: selected })}
           onDelete={() => handleDelete(selected)}
           onClose={() => setSelected(null)}
-          onKeyword={keywordFromDetail}
+          onKeyword={(w) => {
+            setActiveKeyword(w)
+            setSelected(null)
+          }}
         />
       )}
 
