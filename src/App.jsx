@@ -29,8 +29,8 @@ export default function App() {
   // { sectionKey, item } 이면 글 폼, { profile: true } 면 소개 폼
   const [form, setForm] = useState(null)
 
-  // 어떤 섹션에서 어떤 키워드가 켜져 있는지 — { games: '중독', ... }
-  const [activeKeywords, setActiveKeywords] = useState({})
+  // 지금 켜져 있는 키워드 하나. games/papers/records 전체에 함께 적용된다.
+  const [activeKeyword, setActiveKeyword] = useState(null)
 
   const games = useSection('games')
   const papers = useSection('papers')
@@ -60,23 +60,16 @@ export default function App() {
     setView(key)
   }
 
-  // 같은 키워드를 다시 누르면 해제된다.
-  function toggleKeyword(sectionKey, word) {
-    setActiveKeywords((prev) => ({
-      ...prev,
-      [sectionKey]: prev[sectionKey] === word ? null : word,
-    }))
+  // 같은 키워드를 다시 누르면 해제된다. 섹션 구분 없이 전체에 적용된다.
+  function toggleKeyword(word) {
+    setActiveKeyword((prev) => (prev === word ? null : word))
   }
 
-  // 상세 보기에서 키워드를 누르면 그 섹션 목록으로 이동해 강조한다.
+  // 상세 보기에서 키워드를 누르면 창을 닫고 그 키워드를 켠다.
   function keywordFromDetail(word) {
-    const key = selected?.sectionKey
-    if (!key) return
-    setActiveKeywords((prev) => ({ ...prev, [key]: word }))
+    setActiveKeyword(word)
     setSelected(null)
-    setView(key)
   }
-
   async function handleDelete(item) {
     const section = SECTIONS[item.sectionKey]
     if (!window.confirm(`"${item.title}" 을(를) 삭제할까요? 되돌릴 수 없습니다.`)) return
@@ -129,6 +122,8 @@ export default function App() {
             row={profileRow.row}
             isAdmin={isAdmin}
             onEdit={() => setForm({ profile: true, item: profileRow.row })}
+            activeKeyword={activeKeyword}
+            onKeyword={toggleKeyword}
           />
 
           {SECTION_ORDER.map((key) => (
@@ -140,7 +135,7 @@ export default function App() {
               error={data[key].error}
               onOpen={setSelected}
               onMore={setView}
-              activeKeyword={activeKeywords[key] ?? null}
+              activeKeyword={activeKeyword}
               onKeyword={toggleKeyword}
             />
           ))}
@@ -154,7 +149,7 @@ export default function App() {
           error={data[view].error}
           onOpen={setSelected}
           onBack={() => setView('home')}
-          activeKeyword={activeKeywords[view] ?? null}
+          activeKeyword={activeKeyword}
           onKeyword={toggleKeyword}
         />
       )}

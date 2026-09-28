@@ -3,7 +3,10 @@ import { profile as fallback } from '../data'
 
 // 첫 화면 — 소개와 이력서.
 // profile 표에 값이 있으면 그것을 쓰고, 없으면 data.js 의 기본값을 쓴다.
-export default function ProfileSection({ row, isAdmin, onEdit }) {
+//
+// 관심 분야는 키워드로 동작한다. 누르면 아래 Games / Papers / Records 에서
+// 같은 키워드를 가진 글이 강조된다.
+export default function ProfileSection({ row, isAdmin, onEdit, activeKeyword, onKeyword }) {
   const name = row?.name || fallback.name
   const bio = row?.bio || fallback.intro
   const interests = (row?.interests || fallback.skills.join(', '))
@@ -33,17 +36,24 @@ export default function ProfileSection({ row, isAdmin, onEdit }) {
               </a>
             )}
             <a className="btn" href={`mailto:${fallback.email}`}>이메일 보내기</a>
-            {isAdmin && (
-              <button className="btn btn--sm" onClick={onEdit}>소개 수정</button>
-            )}
+            {isAdmin && <button className="btn btn--sm" onClick={onEdit}>소개 수정</button>}
           </div>
 
           {interests.length > 0 && (
-            <div className="profile__skills">
-              {interests.map((s) => (
-                <span key={s}>{s}</span>
-              ))}
-            </div>
+            <>
+              <p className="eyebrow profile__chips-label">관심 분야 — 눌러서 관련 글 찾기</p>
+              <div className="chips">
+                {interests.map((k) => (
+                  <button
+                    key={k}
+                    className={`chip${activeKeyword === k ? ' is-on' : ''}`}
+                    onClick={() => onKeyword(k)}
+                  >
+                    {k}
+                  </button>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </div>

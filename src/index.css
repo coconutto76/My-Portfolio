@@ -1213,24 +1213,6 @@ a {
   }
 }
 
-/* 키워드가 켜졌을 때 상단에 뜨는 안내줄 */
-.keyword-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-  border: 1px solid var(--key);
-  border-left-width: 3px;
-  padding: 13px 18px;
-  margin-bottom: clamp(24px, 3vw, 40px);
-  font-size: 14px;
-}
-
-.keyword-bar strong {
-  color: var(--key);
-}
-
 /* ──────────────────── 게임 진행 상황 ──────────────────── */
 .progress-box {
   border-left: 3px solid var(--key);
@@ -1261,4 +1243,10 @@ a {
 .field input:disabled {
   background: #f6f6f6;
   color: var(--ink-soft);
+}
+
+/* 관심 분야 키워드 위 라벨 */
+.profile__chips-label {
+  margin-top: 30px;
+  margin-bottom: 9px;
 }

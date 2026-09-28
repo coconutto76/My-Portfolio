@@ -42,7 +42,7 @@ export default function SectionPreview({
                 index={i}
                 onOpen={onOpen}
                 activeKeyword={activeKeyword}
-                onKeyword={(k) => onKeyword(section.key, k)}
+                onKeyword={onKeyword}
               />
             ))}
           </div>

@@ -5,10 +5,6 @@ import StatusNotice from './StatusNotice'
 export default function SectionPage({
   section, status, items, error, onOpen, onBack, activeKeyword, onKeyword,
 }) {
-  const hitCount = activeKeyword
-    ? items.filter((i) => i.keywordList.includes(activeKeyword)).length
-    : 0
-
   return (
     <section className="section wrap">
       <button className="back-link" onClick={onBack}>← Profile 로 돌아가기</button>
@@ -22,17 +18,6 @@ export default function SectionPage({
           <p className="eyebrow">{String(items.length).padStart(2, '0')} entries</p>
         )}
       </div>
-
-      {activeKeyword && (
-        <div className="keyword-bar">
-          <span>
-            키워드 <strong>{activeKeyword}</strong> — {hitCount}개 강조 중
-          </span>
-          <button className="link-btn" onClick={() => onKeyword(section.key, activeKeyword)}>
-            해제
-          </button>
-        </div>
-      )}
 
       {status !== 'ready' ? (
         <StatusNotice
@@ -50,7 +35,7 @@ export default function SectionPage({
               index={i}
               onOpen={onOpen}
               activeKeyword={activeKeyword}
-              onKeyword={(k) => onKeyword(section.key, k)}
+              onKeyword={onKeyword}
             />
           ))}
         </div>
