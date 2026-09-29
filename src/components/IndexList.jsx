@@ -83,6 +83,12 @@ function Row({ item, n, onOpen, activeKeyword, onKeyword, onHover }) {
     >
       <button className="row__main" onClick={() => onOpen(item)}>
         <span className="row__n">{String(n).padStart(2, '0')}</span>
+
+        {/* 첨부한 사진이 있으면 제목 왼쪽에 작게 */}
+        <span className={`row__thumb${item.image ? '' : ' is-empty'}`}>
+          {item.image && <img src={item.image} alt="" loading="lazy" />}
+        </span>
+
         <span className="row__title">
           {item.title}
           {item.pinned && <i className="row__dot" aria-label="선정작" />}

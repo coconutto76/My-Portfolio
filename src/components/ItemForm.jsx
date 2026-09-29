@@ -205,8 +205,9 @@ function Field({ field, value, file, busy, onChange, onPickFile }) {
         {field.required ? ' *' : ''}
       </span>
       {field.type === 'textarea' ? (
+        // Enter 로 줄을 바꾼다. 저장은 아래 '등록/수정 저장' 버튼으로만 한다.
         <textarea
-          rows={4}
+          rows={5}
           value={value ?? ''}
           onChange={(e) => onChange(e.target.value)}
           placeholder={field.placeholder}
@@ -218,6 +219,11 @@ function Field({ field, value, file, busy, onChange, onPickFile }) {
           type={field.type === 'url' ? 'url' : 'text'}
           value={value ?? ''}
           onChange={(e) => onChange(e.target.value)}
+          // 한 줄 입력칸에서 Enter 를 누르면 폼이 제출되어 버린다.
+          // 실수로 저장되지 않도록 막는다.
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') e.preventDefault()
+          }}
           placeholder={field.placeholder}
           required={field.required}
           disabled={busy}
