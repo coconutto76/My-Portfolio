@@ -82,11 +82,11 @@ export const SECTIONS = {
     ],
   },
 
-  records: {
-    key: 'records',
-    table: 'records',
-    label: 'Records',
-    heading: 'Records',
+  archive: {
+    key: 'archive',
+    table: 'records',   // DB 표 이름은 그대로 둔다 (자료를 옮길 필요가 없도록)
+    label: 'Archive',
+    heading: 'Archive',
     blurb: '작업과 글이 바깥에 놓인 자리',
     folder: 'records',
     imageField: 'cover_image_url',
@@ -106,13 +106,13 @@ export const SECTIONS = {
   },
 }
 
-export const SECTION_ORDER = ['games', 'papers', 'records']
+export const SECTION_ORDER = ['games', 'papers', 'archive']
 
 export const NAV_ITEMS = [
   { key: 'profile', label: 'Profile' },
   { key: 'games', label: 'Games' },
   { key: 'papers', label: 'Papers' },
-  { key: 'records', label: 'Records' },
+  { key: 'archive', label: 'Archive' },
 ]
 
 export const PROFILE_FIELDS = [

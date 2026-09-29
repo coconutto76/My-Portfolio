@@ -95,6 +95,9 @@ function Row({ item, n, onOpen, activeKeyword, onKeyword, onHover }) {
         </span>
         <span className="row__meta">{item.subtitle}</span>
         <span className="row__go" aria-hidden="true">→</span>
+
+        {/* 설명 맛보기 — games 는 설명, papers 는 초록, archive 는 간단한 설명 */}
+        {item.body && <span className="row__snippet">{item.body}</span>}
       </button>
 
       {item.keywordList.length > 0 && (

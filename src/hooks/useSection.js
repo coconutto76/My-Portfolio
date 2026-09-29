@@ -3,7 +3,7 @@ import { supabase, supabaseConfigError, getStorageUrl } from '../lib/supabase'
 import { SECTIONS, parseKeywords } from '../lib/content'
 
 // ─────────────────────────────────────────────────────────────
-// 한 섹션(games / papers / records)의 목록을 읽어온다.
+// 한 섹션(games / papers / archive)의 목록을 읽어온다.
 //
 // 정렬: 고정(pinned) 먼저 → 그다음 최신순
 //

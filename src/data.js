@@ -2,6 +2,7 @@
 // 화면에 고정으로 들어가는 내용 (프로필 / 내비게이션)
 //
 // 작품 데이터는 여기 없다. Supabase 의 games / papers / records 표에서 읽는다.
+// (Archive 카테고리의 실제 표 이름이 records 다)
 //   → src/hooks/useSection.js
 //
 // profile 표에 값이 채워져 있으면 그쪽이 우선이고,

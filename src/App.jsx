@@ -32,8 +32,8 @@ export default function App() {
 
   const games = useSection('games')
   const papers = useSection('papers')
-  const records = useSection('records')
-  const data = { games, papers, records }
+  const archive = useSection('archive')
+  const data = { games, papers, archive }
 
   const profileRow = useProfileRow()
   const { user, isAdmin, checking, signIn, signOut } = useAuth()
